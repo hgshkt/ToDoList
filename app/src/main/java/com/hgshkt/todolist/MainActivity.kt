@@ -2,10 +2,7 @@ package com.hgshkt.todolist
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
-import android.widget.EditText
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -35,7 +32,7 @@ class MainActivity : AppCompatActivity() {
             .build()
 
         itemList = mutableListOf()
-        adapter = ItemAdapter(applicationContext, itemList, db)
+        adapter = ItemAdapter(applicationContext, itemList, db.getItemDao())
         recyclerView.adapter = adapter
 
         (itemList as ArrayList).addAll(db.getItemDao().getAllItems())
@@ -45,7 +42,7 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
 
         recyclerView.setHasFixedSize(true)
-        adapter = ItemAdapter(this@MainActivity, itemList, db)
+        adapter = ItemAdapter(this@MainActivity, itemList, db.getItemDao())
         recyclerView.adapter = adapter
     }
 
@@ -61,11 +58,10 @@ class MainActivity : AppCompatActivity() {
 
     fun update() {
         (itemList as ArrayList).clear()
-        var item: List<Item> = db.getItemDao().getAllItems()
         for (item in db.getItemDao().getAllItems() as MutableList) {
             (itemList as MutableList).add(item)
         }
-        adapter = ItemAdapter(this@MainActivity, itemList, db)
+        adapter = ItemAdapter(this@MainActivity, itemList, db.getItemDao())
         recyclerView.adapter = adapter
     }
 }

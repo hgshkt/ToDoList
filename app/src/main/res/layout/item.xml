@@ -20,27 +20,17 @@
         app:layout_constraintStart_toStartOf="@+id/itemTitle"
         app:layout_constraintTop_toTopOf="@+id/itemTitle" />
 
-    <Button
-        android:id="@+id/completeButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="4dp"
-        android:text="complete"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <TextView
         android:id="@+id/itemTitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="10dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginEnd="8dp"
         android:layout_marginBottom="10dp"
         android:text="title"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/completeButton"
+        app:layout_constraintEnd_toStartOf="@+id/deleteButton"
         app:layout_constraintStart_toEndOf="@+id/tick"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -54,14 +44,35 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@android:drawable/checkbox_off_background" />
 
-    <Button
+    <ImageView
+        android:id="@+id/deleteButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginEnd="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/saveButton"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@android:drawable/ic_menu_delete" />
+
+    <ImageView
         android:id="@+id/saveButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="save"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginEnd="10dp"
         android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="@+id/completeButton"
-        app:layout_constraintEnd_toEndOf="@+id/completeButton"
-        app:layout_constraintStart_toStartOf="@+id/completeButton"
-        app:layout_constraintTop_toTopOf="@+id/completeButton" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@android:drawable/ic_menu_send" />
+
+    <ImageView
+        android:id="@+id/completeButton"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@+id/saveButton"
+        app:layout_constraintEnd_toEndOf="@+id/saveButton"
+        app:layout_constraintStart_toStartOf="@+id/saveButton"
+        app:layout_constraintTop_toTopOf="@+id/saveButton"
+        app:srcCompat="@android:drawable/ic_menu_edit" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

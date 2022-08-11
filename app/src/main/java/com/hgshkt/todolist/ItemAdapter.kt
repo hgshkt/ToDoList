@@ -13,11 +13,12 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.hgshkt.todolist.db.AppDatabase
+import com.hgshkt.todolist.db.ItemDao
 import com.hgshkt.todolist.model.Item
 
 
 class ItemAdapter(private val context: Context, private val items: List<Item>,
-    private val db: AppDatabase)
+    private val dao: ItemDao)
     : RecyclerView.Adapter<ItemAdapter.ImageViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
@@ -40,12 +41,19 @@ class ItemAdapter(private val context: Context, private val items: List<Item>,
 
             currentItem.title = holder.edit.text.toString()
 
-            db.getItemDao().updateItem(currentItem)
+            dao.updateItem(currentItem)
         }
 
-        holder.itemLayout.setOnLongClickListener {
-            // TODO: delete
-            true
+        holder.deleteButton.setOnClickListener {
+            dao.delete(currentItem)
+            (context as MainActivity).update()
+        }
+
+        holder.tick.setOnClickListener {
+            currentItem.complete = !currentItem.complete
+            loadTick(currentItem.complete, holder.tick)
+            dao.updateItem(currentItem)
+            (context as MainActivity).update()
         }
     }
 
@@ -69,9 +77,9 @@ class ItemAdapter(private val context: Context, private val items: List<Item>,
         var tick: ImageView
         var title: TextView
         var edit: EditText
-        var saveButton: Button
-        var completeButton: Button
-        var itemLayout: ConstraintLayout
+        var saveButton: ImageView
+        var completeButton: ImageView
+        var deleteButton: ImageView
 
         init {
             tick = itemView.findViewById(R.id.tick)
@@ -79,7 +87,7 @@ class ItemAdapter(private val context: Context, private val items: List<Item>,
             edit = itemView.findViewById(R.id.editTitle)
             saveButton = itemView.findViewById(R.id.saveButton)
             completeButton = itemView.findViewById(R.id.completeButton)
-            itemLayout = itemView.findViewById(R.id.itemLayout)
+            deleteButton = itemView.findViewById(R.id.deleteButton)
 
             title.setOnClickListener {
                 edit.setText(title.text)
