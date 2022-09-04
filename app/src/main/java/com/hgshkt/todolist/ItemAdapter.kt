@@ -3,16 +3,13 @@ package com.hgshkt.todolist
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.OnLongClickListener
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.hgshkt.todolist.db.AppDatabase
+import com.hgshkt.todolist.MainActivity.Companion.db
 import com.hgshkt.todolist.db.ItemDao
 import com.hgshkt.todolist.model.Item
 
@@ -20,6 +17,9 @@ import com.hgshkt.todolist.model.Item
 class ItemAdapter(private val context: Context, private val items: List<Item>,
     private val dao: ItemDao)
     : RecyclerView.Adapter<ItemAdapter.ImageViewHolder>() {
+
+    // current item which is being edited
+    var editPosition: Int? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
         val view = LayoutInflater.from(context).inflate(R.layout.item, parent, false)
@@ -37,11 +37,24 @@ class ItemAdapter(private val context: Context, private val items: List<Item>,
             holder.title.visibility = View.VISIBLE
 
             holder.saveButton.visibility = View.INVISIBLE
-            holder.completeButton.visibility = View.VISIBLE
+            holder.editButton.visibility = View.VISIBLE
 
             currentItem.title = holder.edit.text.toString()
 
             dao.updateItem(currentItem)
+
+            editPosition = null
+        }
+
+        holder.editButton.setOnClickListener {
+            holder.edit.setText(holder.title.text)
+            holder.edit.visibility = View.VISIBLE
+            holder.title.visibility = View.INVISIBLE
+
+            holder.saveButton.visibility = View.VISIBLE
+            holder.editButton.visibility = View.INVISIBLE
+
+            editPosition = position
         }
 
         holder.deleteButton.setOnClickListener {
@@ -54,6 +67,35 @@ class ItemAdapter(private val context: Context, private val items: List<Item>,
             loadTick(currentItem.complete, holder.tick)
             dao.updateItem(currentItem)
             (context as MainActivity).update()
+        }
+
+        holder.title.setOnClickListener {
+            //  if user has not saved the changes in previous item, save will happen automatically
+            if (editPosition != null) {
+                val lastEditedItem = MainActivity.recyclerView.layoutManager!!.findViewByPosition(editPosition!!)
+                val editTitle = lastEditedItem!!.findViewById<EditText>(R.id.editTitle)
+                val itemTitle = lastEditedItem.findViewById<EditText>(R.id.itemTitle)
+                val saveButton = lastEditedItem.findViewById<EditText>(R.id.saveButton)
+                val editButton = lastEditedItem.findViewById<EditText>(R.id.editButton)
+
+                itemTitle.text = editTitle.text
+                editTitle.visibility = View.INVISIBLE
+                itemTitle.visibility = View.VISIBLE
+
+                saveButton.visibility = View.INVISIBLE
+                editButton.visibility = View.VISIBLE
+
+                db.getItemDao().updateItem(Item(
+                    editTitle.text.toString()
+                ))
+            }
+
+            holder.edit.setText(holder.title.text)
+            holder.title.visibility = View.INVISIBLE
+            holder.edit.visibility = View.VISIBLE
+
+            holder.editButton.visibility = View.INVISIBLE
+            holder.saveButton.visibility = View.VISIBLE
         }
     }
 
@@ -78,7 +120,7 @@ class ItemAdapter(private val context: Context, private val items: List<Item>,
         var title: TextView
         var edit: EditText
         var saveButton: ImageView
-        var completeButton: ImageView
+        var editButton: ImageView
         var deleteButton: ImageView
 
         init {
@@ -86,17 +128,8 @@ class ItemAdapter(private val context: Context, private val items: List<Item>,
             title = itemView.findViewById(R.id.itemTitle)
             edit = itemView.findViewById(R.id.editTitle)
             saveButton = itemView.findViewById(R.id.saveButton)
-            completeButton = itemView.findViewById(R.id.completeButton)
             deleteButton = itemView.findViewById(R.id.deleteButton)
-
-            title.setOnClickListener {
-                edit.setText(title.text)
-                title.visibility = View.INVISIBLE
-                edit.visibility = View.VISIBLE
-
-                completeButton.visibility = View.INVISIBLE
-                saveButton.visibility = View.VISIBLE
-            }
+            editButton = itemView.findViewById(R.id.editButton)
         }
     }
 }

@@ -14,11 +14,13 @@ import com.hgshkt.todolist.model.Item
 
 class MainActivity : AppCompatActivity() {
 
-    lateinit var recyclerView: RecyclerView
+    companion object {
+        lateinit var recyclerView: RecyclerView
+        lateinit var db: AppDatabase
+    }
+
     lateinit var adapter: ItemAdapter
     lateinit var itemList: List<Item>
-
-    lateinit var db: AppDatabase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,22 +50,18 @@ class MainActivity : AppCompatActivity() {
         recyclerView.adapter = adapter
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.custom_menu, menu)
-        return true
-    }
+//    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+//        menuInflater.inflate(R.menu.custom_menu, menu)
+//        return true
+//    }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.show_all -> {
-                Toast.makeText(this, "show all", Toast.LENGTH_LONG).show()
-
                 update()
-
                 true
-            } R.id.show_completed -> {
-                Toast.makeText(this, "show completed", Toast.LENGTH_LONG).show()
-
+            }
+            R.id.show_completed -> {
                 (itemList as ArrayList).clear()
                 for (item in db.getItemDao().getCompleted() as MutableList) {
                     (itemList as MutableList).add(item)
@@ -72,9 +70,8 @@ class MainActivity : AppCompatActivity() {
                 recyclerView.adapter = adapter
 
                 true
-            } R.id.show_uncompleted -> {
-                Toast.makeText(this, "show uncompleted", Toast.LENGTH_LONG).show()
-
+            }
+            R.id.show_uncompleted -> {
                 (itemList as ArrayList).clear()
                 for (item in db.getItemDao().getUncompleted() as MutableList) {
                     (itemList as MutableList).add(item)
@@ -83,7 +80,8 @@ class MainActivity : AppCompatActivity() {
                 recyclerView.adapter = adapter
 
                 true
-            } else -> super.onOptionsItemSelected(item)
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 
