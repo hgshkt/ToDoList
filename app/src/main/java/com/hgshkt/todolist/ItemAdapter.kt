@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
@@ -47,30 +48,6 @@ class ItemAdapter(private val context: Context, private val items: List<Item>,
         }
 
         holder.editButton.setOnClickListener {
-            holder.edit.setText(holder.title.text)
-            holder.edit.visibility = View.VISIBLE
-            holder.title.visibility = View.INVISIBLE
-
-            holder.saveButton.visibility = View.VISIBLE
-            holder.editButton.visibility = View.INVISIBLE
-
-            editPosition = position
-        }
-
-        holder.deleteButton.setOnClickListener {
-            dao.delete(currentItem)
-            (context as MainActivity).update()
-        }
-
-        holder.tick.setOnClickListener {
-            currentItem.complete = !currentItem.complete
-            loadTick(currentItem.complete, holder.tick)
-            dao.updateItem(currentItem)
-            (context as MainActivity).update()
-        }
-
-        holder.title.setOnClickListener {
-            //  if user has not saved the changes in previous item, save will happen automatically
             if (editPosition != null) {
                 val lastEditedItem = MainActivity.recyclerView.layoutManager!!.findViewByPosition(editPosition!!)
                 val editTitle = lastEditedItem!!.findViewById<EditText>(R.id.editTitle)
@@ -96,6 +73,51 @@ class ItemAdapter(private val context: Context, private val items: List<Item>,
 
             holder.editButton.visibility = View.INVISIBLE
             holder.saveButton.visibility = View.VISIBLE
+
+            editPosition = position
+        }
+
+        holder.deleteButton.setOnClickListener {
+            dao.delete(currentItem)
+            (context as MainActivity).update()
+        }
+
+        holder.tick.setOnClickListener {
+            currentItem.complete = !currentItem.complete
+            loadTick(currentItem.complete, holder.tick)
+            dao.updateItem(currentItem)
+            (context as MainActivity).update()
+        }
+
+        holder.title.setOnClickListener {
+            //  if user has not saved the changes in previous item, save will happen automatically
+            if (editPosition != null) {
+                val lastEditedItem = MainActivity.recyclerView.layoutManager!!.findViewByPosition(editPosition!!)
+                val editTitle = lastEditedItem!!.findViewById<EditText>(R.id.editTitle)
+                val itemTitle = lastEditedItem.findViewById<TextView>(R.id.itemTitle)
+                val saveButton = lastEditedItem.findViewById<ImageView>(R.id.saveButton)
+                val editButton = lastEditedItem.findViewById<ImageView>(R.id.editButton)
+
+                itemTitle.text = editTitle.text
+                editTitle.visibility = View.INVISIBLE
+                itemTitle.visibility = View.VISIBLE
+
+                saveButton.visibility = View.INVISIBLE
+                editButton.visibility = View.VISIBLE
+
+                db.getItemDao().updateItem(Item(
+                    editTitle.text.toString()
+                ))
+            }
+
+            holder.edit.setText(holder.title.text)
+            holder.title.visibility = View.INVISIBLE
+            holder.edit.visibility = View.VISIBLE
+
+            holder.editButton.visibility = View.INVISIBLE
+            holder.saveButton.visibility = View.VISIBLE
+
+            editPosition = position
         }
     }
 
