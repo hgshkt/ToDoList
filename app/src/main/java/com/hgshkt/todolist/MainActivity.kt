@@ -2,13 +2,17 @@ package com.hgshkt.todolist
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.EditText
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.room.Room
+import com.hgshkt.todolist.ItemAdapter.Companion.editPosition
+import com.hgshkt.todolist.ItemAdapter.Companion.saveEdited
 import com.hgshkt.todolist.db.AppDatabase
 import com.hgshkt.todolist.model.Item
 
@@ -17,10 +21,11 @@ class MainActivity : AppCompatActivity() {
     companion object {
         lateinit var recyclerView: RecyclerView
         lateinit var db: AppDatabase
+
+        lateinit var itemList: List<Item>
     }
 
     lateinit var adapter: ItemAdapter
-    lateinit var itemList: List<Item>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,11 +54,6 @@ class MainActivity : AppCompatActivity() {
         adapter = ItemAdapter(this@MainActivity, itemList, db.getItemDao())
         recyclerView.adapter = adapter
     }
-
-//    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-//        menuInflater.inflate(R.menu.custom_menu, menu)
-//        return true
-//    }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
@@ -86,13 +86,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun add(view: View) {
+        saveEdited()
+
         val newItem = Item("NEW ITEM")
         db.getItemDao().insertAll(newItem)
         recyclerView.scrollToPosition(newItem.id)
 
         update()
-
-        Toast.makeText(applicationContext, "add", Toast.LENGTH_LONG).show()
     }
 
     fun update() {

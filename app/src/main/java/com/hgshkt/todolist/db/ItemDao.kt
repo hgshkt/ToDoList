@@ -1,6 +1,5 @@
 package com.hgshkt.todolist.db
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.hgshkt.todolist.model.Item
 
