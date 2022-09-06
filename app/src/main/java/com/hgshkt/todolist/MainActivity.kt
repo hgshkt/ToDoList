@@ -1,13 +1,17 @@
 package com.hgshkt.todolist
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
+import android.view.accessibility.AccessibilityEvent
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.view.doOnPreDraw
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.room.Room
@@ -15,6 +19,7 @@ import com.hgshkt.todolist.ItemAdapter.Companion.editPosition
 import com.hgshkt.todolist.ItemAdapter.Companion.saveEdited
 import com.hgshkt.todolist.db.AppDatabase
 import com.hgshkt.todolist.model.Item
+import com.hgshkt.todolist.service.AddItemService
 
 class MainActivity : AppCompatActivity() {
 
@@ -86,13 +91,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun add(view: View) {
-        saveEdited()
+        if (editPosition != null)
+            saveEdited()
+        else {
+            val newItem = Item("")
+            db.getItemDao().insertAll(newItem)
+//            recyclerView.scrollToPosition(newItem.id)
 
-        val newItem = Item("NEW ITEM")
-        db.getItemDao().insertAll(newItem)
-        recyclerView.scrollToPosition(newItem.id)
+            update()
 
-        update()
+            startService(Intent(applicationContext, AddItemService::class.java))
+        }
     }
 
     fun update() {
