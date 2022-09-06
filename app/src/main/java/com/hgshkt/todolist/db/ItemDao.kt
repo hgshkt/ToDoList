@@ -7,7 +7,7 @@ import com.hgshkt.todolist.model.Item
 interface ItemDao {
 
     @Insert
-    fun insertAll(vararg: Item)
+    fun insert(item: Item)
 
     @Delete
     fun delete(item: Item)

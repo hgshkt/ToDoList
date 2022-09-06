@@ -9,7 +9,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.hgshkt.todolist.MainActivity.Companion.db
+import com.hgshkt.todolist.MainActivity.Companion.dao
+import com.hgshkt.todolist.MainActivity.Companion.recyclerView
 import com.hgshkt.todolist.db.ItemDao
 import com.hgshkt.todolist.model.Item
 
@@ -24,23 +25,35 @@ class ItemAdapter(private val context: Context, private val items: List<Item>,
         var editPosition: Int? = null
 
         fun saveEdited() {
-            val lastEditedItem = MainActivity.recyclerView.layoutManager!!.findViewByPosition(editPosition!!)
-            val editTitle = lastEditedItem!!.findViewById<EditText>(R.id.editTitle)
-            val itemTitle = lastEditedItem.findViewById<TextView>(R.id.itemTitle)
-            val saveButton = lastEditedItem.findViewById<ImageView>(R.id.saveButton)
-            val editButton = lastEditedItem.findViewById<ImageView>(R.id.editButton)
+            var holder = recyclerView.findViewHolderForAdapterPosition(editPosition!!) as ImageViewHolder
 
-            itemTitle.text = editTitle.text
-            editTitle.visibility = View.INVISIBLE
-            itemTitle.visibility = View.VISIBLE
+            setVisibility(holder, false)
 
-            saveButton.visibility = View.INVISIBLE
-            editButton.visibility = View.VISIBLE
-
-            db.getItemDao().updateItem(Item(
-                editTitle.text.toString()
+            dao.updateItem(Item(
+                holder.edit.text.toString()
             ))
             editPosition = null
+        }
+
+        private fun setVisibility(holder:  ItemAdapter.ImageViewHolder, toEdit: Boolean) {
+            when (toEdit) {
+                true -> {
+                    holder.edit.setText(holder.title.text)
+                    holder.title.visibility = View.INVISIBLE
+                    holder.edit.visibility = View.VISIBLE
+
+                    holder.editButton.visibility = View.INVISIBLE
+                    holder.saveButton.visibility = View.VISIBLE
+                }
+                false -> {
+                    holder.title.text = holder.edit.text
+                    holder.edit.visibility = View.INVISIBLE
+                    holder.title.visibility = View.VISIBLE
+
+                    holder.saveButton.visibility = View.INVISIBLE
+                    holder.editButton.visibility = View.VISIBLE
+                }
+            }
         }
     }
 
@@ -55,12 +68,7 @@ class ItemAdapter(private val context: Context, private val items: List<Item>,
         loadTick(currentItem.complete, holder.tick)
 
         holder.saveButton.setOnClickListener {
-            holder.title.text = holder.edit.text
-            holder.edit.visibility = View.INVISIBLE
-            holder.title.visibility = View.VISIBLE
-
-            holder.saveButton.visibility = View.INVISIBLE
-            holder.editButton.visibility = View.VISIBLE
+            setVisibility(holder, false)
 
             currentItem.title = holder.edit.text.toString()
 
@@ -73,12 +81,7 @@ class ItemAdapter(private val context: Context, private val items: List<Item>,
             if (editPosition != null) {
                 saveEdited()
             } else {
-                holder.edit.setText(holder.title.text)
-                holder.title.visibility = View.INVISIBLE
-                holder.edit.visibility = View.VISIBLE
-
-                holder.editButton.visibility = View.INVISIBLE
-                holder.saveButton.visibility = View.VISIBLE
+                setVisibility(holder, true)
 
                 editPosition = position
             }
@@ -109,14 +112,7 @@ class ItemAdapter(private val context: Context, private val items: List<Item>,
             if (editPosition != null) {
                 saveEdited()
             } else {
-
-                holder.edit.setText(holder.title.text)
-                holder.title.visibility = View.INVISIBLE
-                holder.edit.visibility = View.VISIBLE
-
-                holder.editButton.visibility = View.INVISIBLE
-                holder.saveButton.visibility = View.VISIBLE
-
+                setVisibility(holder, true)
                 editPosition = position
             }
         }

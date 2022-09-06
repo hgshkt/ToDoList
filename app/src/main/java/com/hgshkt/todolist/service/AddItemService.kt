@@ -7,7 +7,6 @@ import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.view.doOnPreDraw
 import com.hgshkt.todolist.ItemAdapter
 import com.hgshkt.todolist.MainActivity
 import com.hgshkt.todolist.R
@@ -18,8 +17,7 @@ class AddItemService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        var newItemView =
-            MainActivity.recyclerView.layoutManager!!.findViewByPosition(MainActivity.itemList.size - 1)!!
+        var newItemView = MainActivity.recyclerView.layoutManager!!.findViewByPosition(MainActivity.itemList.size - 1)!!
 
         MainActivity.recyclerView.layoutManager!!.findViewByPosition(MainActivity.itemList.size - 1)!!
 
