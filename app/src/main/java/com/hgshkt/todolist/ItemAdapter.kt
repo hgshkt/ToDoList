@@ -19,40 +19,37 @@ class ItemAdapter(private val context: Context, private val items: List<Item>,
     private val dao: ItemDao)
     : RecyclerView.Adapter<ItemAdapter.ImageViewHolder>() {
 
+    var editPosition: Int? = null
+    var lastView: View? = null
 
-    companion object {
-        // current item which is being edited
-        var editPosition: Int? = null
+    fun saveEdited() {
+        var holder = recyclerView.findViewHolderForAdapterPosition(editPosition!!) as ImageViewHolder
 
-        fun saveEdited() {
-            var holder = recyclerView.findViewHolderForAdapterPosition(editPosition!!) as ImageViewHolder
+        setVisibility(holder, false)
 
-            setVisibility(holder, false)
+        MainActivity.dao.updateItem(Item(
+            holder.edit.text.toString()
+        ))
+        editPosition = null
+    }
 
-            dao.updateItem(Item(
-                holder.edit.text.toString()
-            ))
-            editPosition = null
-        }
+    fun setVisibility(holder:  ItemAdapter.ImageViewHolder, toEdit: Boolean) {
+        when (toEdit) {
+            true -> {
+                holder.edit.setText(holder.title.text)
+                holder.title.visibility = View.INVISIBLE
+                holder.edit.visibility = View.VISIBLE
 
-        private fun setVisibility(holder:  ItemAdapter.ImageViewHolder, toEdit: Boolean) {
-            when (toEdit) {
-                true -> {
-                    holder.edit.setText(holder.title.text)
-                    holder.title.visibility = View.INVISIBLE
-                    holder.edit.visibility = View.VISIBLE
+                holder.editButton.visibility = View.INVISIBLE
+                holder.saveButton.visibility = View.VISIBLE
+            }
+            false -> {
+                holder.title.text = holder.edit.text
+                holder.edit.visibility = View.INVISIBLE
+                holder.title.visibility = View.VISIBLE
 
-                    holder.editButton.visibility = View.INVISIBLE
-                    holder.saveButton.visibility = View.VISIBLE
-                }
-                false -> {
-                    holder.title.text = holder.edit.text
-                    holder.edit.visibility = View.INVISIBLE
-                    holder.title.visibility = View.VISIBLE
-
-                    holder.saveButton.visibility = View.INVISIBLE
-                    holder.editButton.visibility = View.VISIBLE
-                }
+                holder.saveButton.visibility = View.INVISIBLE
+                holder.editButton.visibility = View.VISIBLE
             }
         }
     }
@@ -104,16 +101,6 @@ class ItemAdapter(private val context: Context, private val items: List<Item>,
                 loadTick(currentItem.complete, holder.tick)
                 dao.updateItem(currentItem)
                 (context as MainActivity).update()
-            }
-        }
-
-        holder.title.setOnClickListener {
-            //  if user has not saved the changes in previous item, save will happen automatically
-            if (editPosition != null) {
-                saveEdited()
-            } else {
-                setVisibility(holder, true)
-                editPosition = position
             }
         }
     }

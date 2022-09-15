@@ -1,33 +1,32 @@
 package com.hgshkt.todolist
 
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
+import android.widget.ImageView
+import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.room.Room
-import com.hgshkt.todolist.ItemAdapter.Companion.editPosition
-import com.hgshkt.todolist.ItemAdapter.Companion.saveEdited
 import com.hgshkt.todolist.db.AppDatabase
 import com.hgshkt.todolist.db.ItemDao
 import com.hgshkt.todolist.model.Item
-import com.hgshkt.todolist.service.AddItemService
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.MainScope
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
     companion object {
         lateinit var recyclerView: RecyclerView
         lateinit var db: AppDatabase
         lateinit var dao: ItemDao
-
-        lateinit var itemList: List<Item>
     }
 
-    lateinit var adapter: ItemAdapter
     private var currentFilter = Filter.ALL
+
+    lateinit var itemList: List<Item>
+    lateinit var adapter: ItemAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,34 +73,53 @@ class MainActivity : AppCompatActivity() {
             R.id.show_uncompleted -> {
                 Filter.UNCOMPLETED
             }
+            R.id.addButton -> {
+                add()
+                return true
+            }
             else -> return super.onOptionsItemSelected(item)
         }
         update()
         return true
     }
 
-    fun add(view: View) {
-        if (editPosition != null)
-            saveEdited()
+    fun add() {
+        if (adapter.editPosition != null)
+            adapter.saveEdited()
         else {
             val newItem = Item("")
             dao.insert(newItem)
-            recyclerView.scrollToPosition(newItem.id)
-
             update()
+            recyclerView.scrollToPosition(adapter.itemCount - 1)
 
-            startService(Intent(applicationContext, AddItemService::class.java))
+            Toast.makeText(applicationContext, "new note", Toast.LENGTH_LONG).show()
+/*
+    TODO
+     the new item must be in edit mode
+
+
+            val newItemView = adapter.lastView!!
+            launch {
+                delay(2000)
+                val editTitle = newItemView.findViewById<EditText>(R.id.editTitle)
+                val itemTitle = newItemView.findViewById<TextView>(R.id.itemTitle)
+                val saveButton = newItemView.findViewById<ImageView>(R.id.saveButton)
+                val editButton = newItemView.findViewById<ImageView>(R.id.editButton)
+                editTitle.setText(itemTitle.text)
+                itemTitle.visibility = View.INVISIBLE
+                editTitle.visibility = View.VISIBLE
+                editButton.visibility = View.INVISIBLE
+                saveButton.visibility = View.VISIBLE
+                adapter.editPosition = itemList.lastIndex
+            }
+             */
         }
     }
 
     fun update() {
         (itemList as ArrayList).clear()
 
-        var filteredList = when (currentFilter) {
-            Filter.ALL -> dao.getAllItems()
-            Filter.COMPLETED -> dao.getCompleted()
-            Filter.UNCOMPLETED -> dao.getUncompleted()
-        }
+        var filteredList = currentFilter.filterOut()
 
         for (item in filteredList as MutableList) {
             (itemList as MutableList).add(item)
@@ -112,6 +130,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private enum class Filter {
-        ALL, COMPLETED, UNCOMPLETED
+        ALL {
+            override fun filterOut() = dao.getAllItems()
+        },
+        COMPLETED {
+            override fun filterOut() = dao.getCompleted()
+        },
+        UNCOMPLETED {
+            override fun filterOut() = dao.getUncompleted()
+        };
+
+        abstract fun filterOut(): List<Item>
     }
 }
