@@ -7,9 +7,9 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.hgshkt.todolist.MainActivity.Companion.dao
 import com.hgshkt.todolist.MainActivity.Companion.recyclerView
 import com.hgshkt.todolist.db.ItemDao
 import com.hgshkt.todolist.model.Item
@@ -71,6 +71,8 @@ class ItemAdapter(private val context: Context, private val items: List<Item>,
 
             dao.updateItem(currentItem)
 
+            Toast.makeText(context, "note is saved", Toast.LENGTH_SHORT).show()
+
             editPosition = null
         }
 
@@ -79,7 +81,6 @@ class ItemAdapter(private val context: Context, private val items: List<Item>,
                 saveEdited()
             } else {
                 setVisibility(holder, true)
-
                 editPosition = position
             }
         }
@@ -88,6 +89,7 @@ class ItemAdapter(private val context: Context, private val items: List<Item>,
             if (editPosition != null) {
                 saveEdited()
             } else {
+                Toast.makeText(context, "note is deleted", Toast.LENGTH_SHORT).show()
                 dao.delete(currentItem)
                 (context as MainActivity).update()
             }

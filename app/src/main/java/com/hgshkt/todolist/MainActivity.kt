@@ -1,11 +1,10 @@
 package com.hgshkt.todolist
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.ImageView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.room.Room
@@ -92,27 +91,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
             update()
             recyclerView.scrollToPosition(adapter.itemCount - 1)
 
-            Toast.makeText(applicationContext, "new note", Toast.LENGTH_LONG).show()
-/*
-    TODO
-     the new item must be in edit mode
-
-
-            val newItemView = adapter.lastView!!
-            launch {
-                delay(2000)
-                val editTitle = newItemView.findViewById<EditText>(R.id.editTitle)
-                val itemTitle = newItemView.findViewById<TextView>(R.id.itemTitle)
-                val saveButton = newItemView.findViewById<ImageView>(R.id.saveButton)
-                val editButton = newItemView.findViewById<ImageView>(R.id.editButton)
-                editTitle.setText(itemTitle.text)
-                itemTitle.visibility = View.INVISIBLE
-                editTitle.visibility = View.VISIBLE
-                editButton.visibility = View.INVISIBLE
-                saveButton.visibility = View.VISIBLE
-                adapter.editPosition = itemList.lastIndex
-            }
-             */
+            Toast.makeText(applicationContext, "new note", Toast.LENGTH_SHORT).show()
         }
     }
 
